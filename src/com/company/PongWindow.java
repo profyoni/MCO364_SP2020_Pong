@@ -18,17 +18,17 @@ class PongWindow extends JFrame {
             PADDLE_WIDTH = 30, PADDLE_HEIGHT = 125;
     private Point ball = new Point(100,60), paddleRight = new Point(), paddLeft = new Point();
     private GamePanel gamePanel = new GamePanel();
-    private int ball_dx = 2, ball_dy = 2;
+    private int ball_dx = 1, ball_dy = 1;
 
     public PongWindow() {
 
         setSize(500, 800);
 
-        Timer ballUpdater = new Timer(40, new ActionListener() {
+        javax.swing.Timer ballUpdater = new Timer(10, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 ball.translate(ball_dx, ball_dy);
-                System.out.println(ball);
+               // System.out.println(ball);
                 if (ball.x>400 || ball.x < 10)
                 {
                     ball_dx = -ball_dx;
@@ -37,7 +37,12 @@ class PongWindow extends JFrame {
                 {
                     ball_dy = -ball_dy;
                 }
-                repaint();
+                final int BUFFER = 90;
+                Point panelD = gamePanel.getLocationOnScreen();
+                        Point ballAbs = ball.getLocation();
+                ballAbs.translate(panelD.x, panelD.y);
+                repaint(ballAbs.x-2, ballAbs.y-2,
+                        BALL_DIAMETER+4, BALL_DIAMETER+4);
             }
         });
 
@@ -46,13 +51,17 @@ class PongWindow extends JFrame {
         setContentPane(gamePanel);
 
        // setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        addWindowListener(new WindowListener() {
+        addWindowListener(new WindowAdapter() {
             @Override
             public void windowOpened(WindowEvent windowEvent) {
                 try (Scanner scanner = new Scanner(new File("pong.txt"))) {
                     ball.x = scanner.nextInt();
                     scanner.nextLine();
                     ball.y = scanner.nextInt();
+                    scanner.nextLine();
+                    ball_dx = scanner.nextInt();
+                    scanner.nextLine();
+                    ball_dy= scanner.nextInt();
                     } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -64,6 +73,8 @@ class PongWindow extends JFrame {
                 try (PrintWriter pw = new PrintWriter("pong.txt")) {
                     pw.println(ball.x);
                     pw.println(ball.y);
+                    pw.println(ball_dx);
+                    pw.println(ball_dy);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -71,32 +82,10 @@ class PongWindow extends JFrame {
 
             }
 
-            @Override
-            public void windowClosed(WindowEvent windowEvent) {
-
-            }
-
-            @Override
-            public void windowIconified(WindowEvent windowEvent) {
-
-            }
-
-            @Override
-            public void windowDeiconified(WindowEvent windowEvent) {
-
-            }
-
-            @Override
-            public void windowActivated(WindowEvent windowEvent) {
-
-            }
-
-            @Override
-            public void windowDeactivated(WindowEvent windowEvent) {
-
-            }
         });
         setVisible(true);
+        revalidate(); // updates location of components in this GUI
+
     }
 
     class GamePanel extends JPanel
@@ -104,6 +93,7 @@ class PongWindow extends JFrame {
         GamePanel()
         {
             setBackground(new Color(155,60, 140));
+
 
             addKeyListener(new KeyListener() {
                 @Override
