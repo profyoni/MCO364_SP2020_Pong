@@ -76,7 +76,7 @@ class PongWindow extends JFrame {
                     pw.println(ball_dx);
                     pw.println(ball_dy);
                 } catch (FileNotFoundException e) {
-                    e.printStackTrace();
+                    e.printStackTrace();;
                 }
                 System.exit(0);
 
