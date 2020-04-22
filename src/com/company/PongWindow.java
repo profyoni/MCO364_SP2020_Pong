@@ -20,11 +20,16 @@ class PongWindow extends JFrame {
     private GamePanel gamePanel = new GamePanel();
     private int ball_dx = 1, ball_dy = 1;
 
+    private javax.swing.Timer ballUpdater;
     public PongWindow() {
 
+        setContentPane(gamePanel);
         setSize(500, 800);
 
-        javax.swing.Timer ballUpdater = new Timer(10, new ActionListener() {
+        setVisible(true);
+        revalidate(); // updates location of components in this GUI
+
+        ballUpdater = new Timer(10, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 ball.translate(ball_dx, ball_dy);
@@ -46,9 +51,6 @@ class PongWindow extends JFrame {
             }
         });
 
-        ballUpdater.start();
-
-        setContentPane(gamePanel);
 
        // setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
@@ -83,9 +85,7 @@ class PongWindow extends JFrame {
             }
 
         });
-        setVisible(true);
-        revalidate(); // updates location of components in this GUI
-
+        gamePanel.requestFocus();
     }
 
     class GamePanel extends JPanel
@@ -104,6 +104,8 @@ class PongWindow extends JFrame {
                 @Override
                 public void keyPressed(KeyEvent keyEvent) {
 
+                    ballUpdater.start();
+                    System.out.println("Pressed");
                 }
 
                 @Override
@@ -117,9 +119,12 @@ class PongWindow extends JFrame {
                 public void mouseWheelMoved(MouseWheelEvent mouseWheelEvent) {
                     paddLeft.translate(0, 5 * mouseWheelEvent.getWheelRotation());
                     System.out.println(mouseWheelEvent.getWheelRotation());
-                    repaint();
+
+                    int PADDING =10;
+                    repaint(paddLeft.x, ball.y-PADDING, PADDLE_WIDTH,2*PADDING+PADDLE_HEIGHT);
                 }
             });
+
         }
 
         @Override
@@ -127,7 +132,10 @@ class PongWindow extends JFrame {
         {
             super.paintComponent(g);
 
-            g.fillOval(ball.x,ball.y, BALL_DIAMETER, BALL_DIAMETER);
+            if (ballUpdater.isRunning())
+            {
+                g.fillOval(ball.x,ball.y, BALL_DIAMETER, BALL_DIAMETER);
+            }
             g.setColor(Color.white);
             g.fillRect(paddLeft.x,paddLeft.y, PADDLE_WIDTH, PADDLE_HEIGHT);
 
